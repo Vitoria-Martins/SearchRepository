@@ -3,22 +3,51 @@
 }
 
 body {
-  background-color: #380b5b;
-  /* #8D27DC */
+  background-color: #282c34;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: sans-serif;
   text-align: center;
+
+
 }
 
-#containerSearch {
-  background-color: #a55adf;
-  padding: 20px;
+.containerSearch {
+  background-color: #1565C0;
+  /* #61DAFB */
+  padding: 25px;
   border-radius: 15px;
   width: 400px;
-  /* Defina a largura desejada */
   margin: 0 auto;
+  margin-bottom: 20px;
+  max-width: 900px;
+
+  /* overflow: hidden; */
+
+}
+
+@media (max-width: 600px) {
+  .containerSearch {
+    width: 70%;
+
+
+  }
+
+}
+
+.titulo {
+  font-size: 1.3rem;
+  padding: 10px;
+}
+
+.styleList {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  max-width: 500px;
+  align-items: center;
+
 
 }

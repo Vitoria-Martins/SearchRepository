@@ -7,11 +7,12 @@ import RepositoryList from './components/RepositoryList';
 function App() {
   return (
     <div >
-      <h1>GitHub Repository Search</h1>
+      <h1 className='titulo'>GitHub Repository Search</h1>
       <ComponentSearch />
       <RepositoryList />
     </div>
   );
 }
+
 
 export default App;

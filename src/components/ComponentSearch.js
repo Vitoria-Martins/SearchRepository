@@ -1,107 +1,107 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { TextField, Button } from '@mui/material';
 import RepositoryList from './RepositoryList';
 import axios from 'axios';
 
-// Componente Caixa de Texto
-function InputText({ setUsername }) {
-    return (
-        <TextField
-            id="filled-basic"
-            label="Search GitHub"
-            variant="filled"
-            onChange={(e) => setUsername(e.target.value)}
-            sx={{
 
-                color: 'black',
-
-
-            }} // Atualiza com o novo valor do input 
-        />
-    );
-}
-
-// Componente do Botão
-function BtnSearch({ eventoSearch }) {
-    return (
-        <Button
-            variant="contained"
-            sx={{
-                fontSize: '8px',
-                width: '60px',
-                height: '30px',
-                display: 'flex',
-                alignItems: 'center',
-                margin: 'auto',
-                marginTop: '10px',
-                backgroundColor: '#380b5b',
-                color: 'white',
-                borderRadius: '100px',
-                '&:hover': {
-                    backgroundColor: '#380b5b',
-                }
-            }}
-            onClick={eventoSearch}
-        >
-            Search
-        </Button>
-    );
-}
-
-// Componente principal que junta tudo
 function ComponentSearch() {
-    const [username, setUsername] = useState(''); // Armazena nome do usuário
-    const [repos, setRepos] = useState([]); // Armazena os repositórios
-    const [loading, setLoading] = useState(false); // Estado de carregamento
-    const [error, setError] = useState(null); // Estado de erro
-    const [userNotFound, setUserNotFound] = useState(false); // Estado para "usuário não encontrado"
+    const [username, setUsername] = useState(''); // estado de username
+    const [repos, setRepos] = useState([]); //lista de repositorios
+    const [loading, setLoading] = useState(false); // carregamento
+    const [error, setError] = useState(null); //erros
+    const [userNotFound, setUserNotFound] = useState(false);
+    const [page, setPage] = useState(1); //indica em qual pagina esta 
+    const [itemsPage] = useState(5); // quantos itens por paginas 
 
-    // Função para busca 
+    //funcao para paginacao
+    function PageChange(newPage) {
+        setPage(newPage);
+        console.log(newPage > page ? "Next Page:" : "Previous Page:", newPage); //condicional para voltar ou ir pra proxima pagina
+        eventoSearch();
+    }
     const eventoSearch = async () => {
-        // Nome de usuário válido para a API
-        const validUsernames = ['dan', 'dan abramov', 'gaearon'];
-
-        // Remove espaços e converte para minúsculas para comparação
+        const validUsername = ['facebook'];
         const trimmedUsername = username.trim().toLowerCase();
 
-        // verifica se trimmed esta em valid e inverte a resposta booleana
-        if (!validUsernames.includes(trimmedUsername)) {
-            setUserNotFound(true); // Define que o usuário não foi encontrado
-            setRepos([]); // Limpa os repositórios
+        if (!validUsername.includes(trimmedUsername)) {
+            setUserNotFound(true);
+            setRepos([]);
             setLoading(false);
             return;
         }
-
-
-
-        setLoading(true); // Define como carregando quando a busca começa
-        setUserNotFound(false); // Limpa o estado de usuário não encontrado
-
+        setLoading(true);
+        setUserNotFound(false);
         try {
-            // Corrigido: URL deve ser uma string entre aspas
-            const response = await axios.get('https://api.github.com/users/gaearon/repos');
+            const response = await axios.get(`https://api.github.com/users/facebook/repos?page=${page}&per_page=${itemsPage}`);
             setRepos(response.data);
         } catch (err) {
             setError(err);
         } finally {
-            setLoading(false); // Garante que pare de carregar no final, independente do resultado
+            setLoading(false);
         }
     };
-
-    // Container para agrupar todos os componentes 
     return (
         <div>
-            <div id="containerSearch" ><InputText setUsername={setUsername} />
-                <BtnSearch eventoSearch={eventoSearch} /></div>
-            {loading && <div
-                style={{ padding: '10px' }}
-            >Loading...</div>} {/* Exibe a mensagem de carregamento */}
-            {userNotFound && <div
-                style={{ color: 'red', padding: '10px' }}>User not found</div>}
+            <div className="containerSearch">
+                <TextField
+                    id="standard-basic"
+                    label="Search GitHub"
+                    variant="standard"
+                    value={username} //vincula o input ao estado
+                    onChange={(e) => setUsername(e.target.value)} //atualiza o estado com o valor diitado
+                    sx={{
+                        color: 'black',
+                        backgroundColor: 'transparent',
+                        '& .MuiInput-underline:after': {
+                            borderBottom: '2px solid #08284D'
+
+                        },
+                        '& .MuiInputLabel-root': {
+                            color: '#08284D'
+                        }
+                    }
+                    }
+                />
+                <Button
+                    variant="contained"
+                    sx={{
+                        fontSize: '8px',
+                        width: '60px',
+                        height: '30px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        margin: 'auto',
+                        marginTop: '10px',
+                        backgroundColor: '#282c34',
+                        color: 'white',
+                        borderRadius: '100px',
+                        '&:hover': {
+                            backgroundColor: '#282c34',
+                        }
+                    }}
+                    onClick={eventoSearch}
+                > Search</Button>
+            </div>
+            {/* exibe as mensagens de carregamento e erro */}
+            {loading && <div>Loading...</div>}
+            {userNotFound && <div style={{ color: 'red' }}>User not found</div>}
             {error && <div style={{ color: 'red' }}>Error occurred: {error.message}</div>}
-            <RepositoryList repos={repos} loading={loading} error={error} />
-        </div >
+
+            {/* exibe a lista  */}
+            <RepositoryList repos={repos} />
+            {/* garante que a lista so seja mostrado se tiver pelo menos 1 item */}
+            {repos.length > 0 && (
+                <div>
+                    <Button
+                        onClick={() => PageChange(page - 1)}
+                        disabled={page === 1}
+                    > &lt;</Button>
+                    <Button
+                        onClick={() => PageChange(page + 1)}
+                    >&gt;</Button>
+                </div>
+            )}
+        </div>
     );
 }
-
 export default ComponentSearch;
